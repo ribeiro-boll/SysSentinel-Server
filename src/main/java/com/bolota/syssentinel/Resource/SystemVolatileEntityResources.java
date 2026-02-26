@@ -9,4 +9,5 @@ public interface SystemVolatileEntityResources extends JpaRepository<SystemVolat
     Page<SystemVolatileEntityDTO> findBy(Pageable pageable);
     boolean existsByUUID(String uuid);
     void deleteByUUID(String uuid);
+    SystemVolatileEntityDTO getByUUID(String uuid);
 }

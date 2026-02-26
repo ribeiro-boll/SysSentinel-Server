@@ -15,17 +15,15 @@ import org.springframework.security.oauth2.jose.jws.MacAlgorithm;
 import org.springframework.security.oauth2.jwt.*;
 import org.springframework.web.bind.annotation.*;
 
-import java.sql.Savepoint;
 import java.time.Instant;
 import java.util.HashMap;
 import java.util.List;
 
 import static com.bolota.syssentinel.Security.SystemSecurity.getRegisterKey;
-import static com.bolota.syssentinel.Service.SysSentinelService.genJSON;
 
-@RequestMapping("/api")
+@RequestMapping("/api/systems")
 @RestController
-public class SysSentinelController {
+public class HostToClientController {
     @Autowired
     SystemEntityResources ser;
 
@@ -97,20 +95,18 @@ public class SysSentinelController {
             return ResponseEntity.status(409).build();
         }
         String jwtSub = jwt.getSubject();
-        if (sveNew.getUUID() == null){
+        if (sveNew.getUUID() == null) return  ResponseEntity.status(403).build();
+
+        if (!sveNew.getUUID().equals(jwtSub)){
             return  ResponseEntity.status(403).build();
+        }
+        if (!ser.existsByUUID(sveNew.getUUID())){
+            return ResponseEntity.status(404).build();
         }
         if (sver.existsByUUID(sveNew.getUUID())){
             sver.deleteByUUID(sveNew.getUUID());
             sver.save(new SystemVolatileEntityDTO(sveNew));
             return ResponseEntity.status(200).build();
-        }
-        if (!sveNew.getUUID().equals(jwtSub)){
-            return  ResponseEntity.status(403).build();
-        }
-
-        if (!ser.existsByUUID(sveNew.getUUID())){
-            return ResponseEntity.status(404).build();
         }
         sver.save(new SystemVolatileEntityDTO(sveNew));
         return ResponseEntity.status(200).build();
