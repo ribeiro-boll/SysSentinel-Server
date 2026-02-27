@@ -8,11 +8,13 @@ import com.bolota.syssentinel.Resource.SystemEntityResources;
 import com.bolota.syssentinel.Resource.SystemVolatileEntityResources;
 import com.bolota.syssentinel.Resource.UserEntityResources;
 import com.bolota.syssentinel.Service.SysSentinelService;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.data.web.SpringDataWebProperties;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -43,7 +45,9 @@ public class HostToMetricsFrontendController {
         if (jwt == null) return ResponseEntity.status(409).build();
         if (login == null) return ResponseEntity.status(404).build();
         if (!jwt.getSubject().equals(login)) return ResponseEntity.status(401).build();
+        System.out.println(login);
         ArrayList<String> systemsUUIDs = uer.getUserEntityByLogin(login).getSystemsInPossession();
+        System.out.println(systemsUUIDs);
         ArrayList<SystemEntityDTO> systems = new ArrayList<>();
         for(String uuids: systemsUUIDs){
             systems.add(ser.getByUUID(uuids));
@@ -52,21 +56,29 @@ public class HostToMetricsFrontendController {
     }
     @GetMapping("/systemVolatileInfo")
     public ResponseEntity<SystemVolatileEntityDTO> sendSystemVolatileInfo(@AuthenticationPrincipal Jwt jwt, @RequestHeader("login") String login, @RequestParam String uuid){
+        System.out.println("teste 1");
         if (jwt == null) return ResponseEntity.status(409).build();
+        System.out.println("teste 2");
         if (login == null) return ResponseEntity.status(404).build();
+        System.out.println("teste 3");
         if (!jwt.getSubject().equals(login)) return ResponseEntity.status(401).build();
+        System.out.println("teste 4");
+        System.out.println(uuid);
         if (!sver.existsByUUID(uuid)) return ResponseEntity.status(404).build();
+        System.out.println("teste 5");
         return ResponseEntity.ok(sver.getByUUID(uuid));
     }
+    @Modifying
+    @Transactional
     @PostMapping("/systemRegister")
     public ResponseEntity<Void> registerHandler(@AuthenticationPrincipal Jwt jwt, @RequestHeader("login") String login, @RequestParam String uuid){
         if (login == null) return ResponseEntity.badRequest().build();
         if (login.equals(" ") ||login.isEmpty()) return ResponseEntity.badRequest().build();
         if (!uer.existsByLogin(login)) return ResponseEntity.status(409).build();
         if (!jwt.getSubject().equals(login)) return ResponseEntity.status(401).build();
+        System.out.println(uuid);
         UserEntity ue = uer.getUserEntityByLogin(login);
         ue.addSystem(uuid);
-        uer.deleteByLogin(login);
         uer.save(ue);
         return ResponseEntity.ok().build();
     }

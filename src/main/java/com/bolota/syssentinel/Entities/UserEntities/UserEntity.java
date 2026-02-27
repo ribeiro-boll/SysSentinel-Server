@@ -33,6 +33,12 @@ public class UserEntity {
         this.passwordHash = passwordEncoder().encode(passwordHash);
         this.systemsInPossession = new ArrayList<>();
     }
+    public UserEntity(UserEntity ue){
+        this.id = ue.getId() + 1;
+        this.login = ue.getLogin();
+        this.passwordHash = ue.getPasswordHash();
+        this.systemsInPossession = ue.getSystemsInPossession();
+    }
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }

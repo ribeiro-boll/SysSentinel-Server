@@ -8,10 +8,8 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.oauth2.jwt.JwtClaimsSet;
-import org.springframework.security.oauth2.jwt.JwtDecoder;
-import org.springframework.security.oauth2.jwt.JwtEncoder;
-import org.springframework.security.oauth2.jwt.JwtEncoderParameters;
+import org.springframework.security.oauth2.jose.jws.MacAlgorithm;
+import org.springframework.security.oauth2.jwt.*;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.Instant;
@@ -28,8 +26,12 @@ public class HostToUserFrontendController {
     @Autowired
     UserEntityResources uer;
 
-    @Autowired
+    final
     JwtEncoder jwtEncoder;
+
+    public HostToUserFrontendController(JwtEncoder jwtEncoder) {
+        this.jwtEncoder = jwtEncoder;
+    }
 
     @PostMapping("/login")
     public ResponseEntity<String> loginHandler(@RequestParam HashMap<String,String> loginInfo){
@@ -48,6 +50,7 @@ public class HostToUserFrontendController {
         if (loginInfo.get("login").trim().isEmpty()||loginInfo.get("password").trim().isEmpty()) return ResponseEntity.badRequest().build();
         if (uer.existsByLogin(loginInfo.get("login"))) return ResponseEntity.status(409).build();
         uer.save(new UserEntity(loginInfo.get("login"), passwordEncoder.encode(loginInfo.get("password"))));
+        System.out.println(loginInfo);
         return ResponseEntity.ok(issueLoginToken(loginInfo.get("login")));
     }
     public String issueLoginToken(String login) {
@@ -59,6 +62,7 @@ public class HostToUserFrontendController {
                 .subject(login)
                 .claim("roles", List.of("USER"))
                 .build();
-        return jwtEncoder.encode(JwtEncoderParameters.from(claims)).getTokenValue();
+        JwsHeader header = JwsHeader.with(MacAlgorithm.HS256).build();
+        return jwtEncoder.encode(JwtEncoderParameters.from(header,claims)).getTokenValue();
     }
 }

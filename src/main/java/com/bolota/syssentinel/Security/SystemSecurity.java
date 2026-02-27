@@ -38,7 +38,9 @@ public class SystemSecurity {
     public static String getAuthKey(){
         File file = new File(filePath);
         try(Scanner scanner = new Scanner(file)) {
-            return scanner.nextLine().substring(8);
+            String nga = scanner.nextLine().substring(8);
+            System.out.println(nga);
+            return nga;
         }
         catch (Exception e) {
             throw new RuntimeException(e);

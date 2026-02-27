@@ -21,11 +21,11 @@ public class JwtConfig {
         byte[] keyBytes = s.getBytes(StandardCharsets.UTF_8);
         return new SecretKeySpec(keyBytes, "HmacSHA256");
     }
-
     @Bean
     JwtEncoder jwtEncoder() {
         byte[] secret = getAuthKey().getBytes(StandardCharsets.UTF_8);
-        return new NimbusJwtEncoder(new ImmutableSecret<>(secret));
+        SecretKey key = new SecretKeySpec(secret, "HmacSHA256");
+        return new NimbusJwtEncoder(new ImmutableSecret<>(key));
     }
     @Bean
     JwtDecoder jwtDecoder() {

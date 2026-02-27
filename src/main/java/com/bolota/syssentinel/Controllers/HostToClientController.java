@@ -8,6 +8,7 @@ import com.bolota.syssentinel.Resource.SystemEntityResources;
 import com.bolota.syssentinel.Resource.SystemVolatileEntityResources;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -39,6 +40,7 @@ public class HostToClientController {
     @PostMapping(value="/sysinfo", consumes="application/json")
     public ResponseEntity<HashMap> SysEntityHandler(@RequestHeader("JwtToken") String jwttoken,@RequestHeader("RegisterToken") String rgstrtoken, @RequestBody SystemEntity seNew){
         if(seNew.getUUID().equals("null") && jwttoken.equals("null") && rgstrtoken.equals(getRegisterKey())){
+            System.out.println("teste 1");
             String UUID = genUUID();
             HashMap<String,String> map = new HashMap<>();
             map.put("UUID",UUID);
@@ -48,7 +50,9 @@ public class HostToClientController {
             return new ResponseEntity<>(map, HttpStatusCode.valueOf(200));
         }
         if(!seNew.getUUID().equals("null") && jwttoken.equals("null") && rgstrtoken.equals(getRegisterKey())){
+            System.out.println("teste 2");
             if (ser.existsByUUID(seNew.getUUID())){
+                System.out.println("teste 3");
                 HashMap<String,String> map = new HashMap<>();
                 map.put("UUID",seNew.getUUID());
                 map.put("token",issueAgentToken(seNew.getUUID()));
@@ -56,6 +60,7 @@ public class HostToClientController {
                 return new ResponseEntity<>(map, HttpStatusCode.valueOf(200));
             }
             else {
+                System.out.println("teste 4");
                 HashMap<String,String> map = new HashMap<>();
                 map.put("UUID",null);
                 map.put("token",null);
@@ -63,6 +68,7 @@ public class HostToClientController {
             }
         }
         if (seNew.getUUID().equals("null") && !jwttoken.equals("null") && rgstrtoken.equals("null")) {
+            System.out.println("teste 5");
             HashMap<String, String> map = new HashMap<>();
             map.put("UUID", null);
             map.put("token", null);
@@ -70,6 +76,7 @@ public class HostToClientController {
         }
 
         if (seNew.getUUID().equals(jwtDecoder.decode(jwttoken).getSubject())){
+            System.out.println("teste 6");
             if (ser.existsByUUID(seNew.getUUID())){
                 ser.deleteByUUID(seNew.getUUID());
             }
@@ -81,13 +88,14 @@ public class HostToClientController {
             return new ResponseEntity<>(map, HttpStatusCode.valueOf(200));
         }
         else {
+            System.out.println("teste 7");
             HashMap<String,String> map = new HashMap<>();
             map.put("UUID",null);
             map.put("token",null);
             return new ResponseEntity<>(map, HttpStatusCode.valueOf(401));
         }
     }
-
+    @Modifying
     @Transactional
     @PostMapping(value="/sysinfovolatile", consumes="application/json")
     public ResponseEntity<Void> SysVolatileHandler(@AuthenticationPrincipal Jwt jwt, @RequestBody SystemVolatileEntity sveNew){
@@ -117,13 +125,12 @@ public class HostToClientController {
         JwtClaimsSet claims = JwtClaimsSet.builder()
                 .issuer("SysSentinelHost")
                 .issuedAt(now)
-                .expiresAt(now.plusSeconds(60L * 60L * 24L * 7L))
+                .expiresAt(now.plusSeconds(60L * 60L * 3L))
                 .subject(uuid)
                 .claim("roles", List.of("AGENT"))
                 .build();
-        JwsHeader headers = JwsHeader.with(MacAlgorithm.HS256).build();
-
-        return jwtEncoder.encode(JwtEncoderParameters.from(headers, claims)).getTokenValue();
+        JwsHeader header = JwsHeader.with(MacAlgorithm.HS256).build();
+        return jwtEncoder.encode(JwtEncoderParameters.from(header,claims)).getTokenValue();
     }
     public String genUUID(){
         char[] UUID_CHARS = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ".toCharArray();

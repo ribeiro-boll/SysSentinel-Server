@@ -19,11 +19,18 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/h2-console/**").permitAll()
                         .requestMatchers("/api/systems/sysinfo").permitAll()
+                        .requestMatchers("/api/systems/sysinfovolatile").authenticated()
+                        .requestMatchers("/assets/**").permitAll()
+                        .requestMatchers("/").permitAll()
+                        .requestMatchers("/favicon.ico").permitAll()
                         .requestMatchers("/api/user/login").permitAll()
                         .requestMatchers("/api/user/register").permitAll()
+                        .requestMatchers("/swagger-ui.html").permitAll()
+                        .requestMatchers("/swagger-ui/**").permitAll()
                         .requestMatchers("/api/metrics/system").authenticated()
                         .requestMatchers("/api/metrics/systemVolatileInfo").authenticated()
                         .requestMatchers("/api/metrics/systemRegister").authenticated()
+                        .requestMatchers("/v3/**").permitAll()
                         .anyRequest().authenticated()
                 )
                 .oauth2ResourceServer(oauth2 -> oauth2.jwt(Customizer.withDefaults()));
