@@ -30,6 +30,7 @@ public class SecurityConfig {
                         .requestMatchers("/api/metrics/system").authenticated()
                         .requestMatchers("/api/metrics/systemVolatileInfo").authenticated()
                         .requestMatchers("/api/metrics/systemRegister").authenticated()
+                        .requestMatchers("/api/systems/updateAuth").permitAll()
                         .requestMatchers("/v3/**").permitAll()
                         .anyRequest().authenticated()
                 )

@@ -6,6 +6,7 @@ import com.bolota.syssentinel.Entities.SystemEntities.SystemEntity;
 import com.bolota.syssentinel.Entities.SystemEntities.SystemVolatileEntity;
 import com.bolota.syssentinel.Resource.SystemEntityResources;
 import com.bolota.syssentinel.Resource.SystemVolatileEntityResources;
+import io.swagger.v3.oas.annotations.headers.Header;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.repository.Modifying;
@@ -52,6 +53,7 @@ public class HostToClientController {
         }
         if(!seNew.getUUID().equals("null") && jwttoken.equals("null") && rgstrtoken.equals(getRegisterKey())){
             System.out.println("teste 2");
+            System.out.println(seNew.getUUID());
             if (ser.existsByUUID(seNew.getUUID())){
                 System.out.println("teste 3");
                 HashMap<String,String> map = new HashMap<>();
@@ -76,20 +78,27 @@ public class HostToClientController {
             return new ResponseEntity<>(map, HttpStatusCode.valueOf(404));
         }
 
-        if (seNew.getUUID().equals(jwtDecoder.decode(jwttoken).getSubject())){
-            System.out.println("teste 6");
-            if (ser.existsByUUID(seNew.getUUID())){
-                //ser.deleteByUUID(seNew.getUUID());
+        try{
+            if (seNew.getUUID().equals(jwtDecoder.decode(jwttoken).getSubject())){
+                System.out.println("teste 6");
+                if (ser.existsByUUID(seNew.getUUID())){
+                    //ser.deleteByUUID(seNew.getUUID());
+                }
+                //ser.save(new SystemEntityDTO(seNew));
+                HashMap<String,String> map = new HashMap<>();
+                map.put("UUID",seNew.getUUID());
+                map.put("token",jwttoken);
+                ser.save(new SystemEntityDTO(seNew));
+                return new ResponseEntity<>(map, HttpStatusCode.valueOf(200));
             }
-            //ser.save(new SystemEntityDTO(seNew));
-            HashMap<String,String> map = new HashMap<>();
-            map.put("UUID",seNew.getUUID());
-            map.put("token",jwttoken);
-            ser.save(new SystemEntityDTO(seNew));
-            return new ResponseEntity<>(map, HttpStatusCode.valueOf(200));
-        }
-        else {
-            System.out.println("teste 7");
+            else {
+                System.out.println("teste 7");
+                HashMap<String,String> map = new HashMap<>();
+                map.put("UUID",null);
+                map.put("token",null);
+                return new ResponseEntity<>(map, HttpStatusCode.valueOf(401));
+            }
+        } catch (JwtValidationException e) {
             HashMap<String,String> map = new HashMap<>();
             map.put("UUID",null);
             map.put("token",null);
@@ -126,7 +135,7 @@ public class HostToClientController {
         JwtClaimsSet claims = JwtClaimsSet.builder()
                 .issuer("SysSentinelHost")
                 .issuedAt(now)
-                .expiresAt(now.plusSeconds(60L * 60L * 3L))
+                .expiresAt(now.plusSeconds(60L /* * 60L * 3L*/))
                 .subject(uuid)
                 .claim("roles", List.of("AGENT"))
                 .build();
@@ -144,6 +153,20 @@ public class HostToClientController {
             System.out.println(s);
         }while (ser.existsByUUID(s.toString()));
         return s.toString();
+    }
+    @GetMapping("/updateAuth")
+    public ResponseEntity<HashMap> updateAuth(@RequestHeader ("JwtToken") String jwtTkn, @RequestHeader ("RegisterToken") String regTkn, @RequestHeader ("sysUUID") String uuid){
+        System.out.println(jwtTkn + "   " + regTkn + "   " + uuid +  "   ");
+        if ((jwtTkn.equals("null")) && regTkn.equals(getRegisterKey())){
+            HashMap<String,String> map = new HashMap<>();
+            map.put("UUID",uuid);
+            map.put("token",issueAgentToken(uuid));
+            return new ResponseEntity<>(map,HttpStatusCode.valueOf(200));
+        }
+        HashMap<String,String> map = new HashMap<>();
+        map.put("UUID",uuid);
+        map.put("token",null);
+        return new ResponseEntity<>(map,HttpStatusCode.valueOf(200));
     }
 
 }

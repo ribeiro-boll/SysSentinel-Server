@@ -24,15 +24,20 @@ public class SystemSecurity {
     }
 
     public static void registerAuthKey() throws IOException {
-        Scanner scanner = new Scanner(System.in);
-        File file = new File(filePath);
-        try (FileWriter fw= new FileWriter(file)){
-            System.out.println("Enter the Auth Key:");
-            fw.write("AuthKey="+scanner.nextLine().trim()+"\n");
-            System.out.println("Enter the Register Key:");
-            fw.write("RegisterKey="+scanner.nextLine().trim());
-        } catch (IOException e) {
-            throw new RuntimeException(e);
+        try (Scanner scanner = new Scanner(System.in)) {
+            File file = new File(filePath);
+            String jwtToken;
+            String registerKey;
+            System.out.println("Enter the Jwt Key !(spaces will be trimmed)! :");
+            jwtToken = scanner.nextLine();
+            System.out.println("Enter the Register Key !(spaces will be trimmed)! :");
+            registerKey = scanner.nextLine();
+            try (FileWriter fw = new FileWriter(file)) {
+                fw.write("AuthKey=" + jwtToken.trim() + "\n");
+                fw.write("RegisterKey=" + registerKey.trim());
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
         }
     }
     public static String getAuthKey(){
