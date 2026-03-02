@@ -5,6 +5,54 @@
 O SysSentinel Server é a aplicação central responsável por receber, validar e persistir as informações enviadas pelos agentes monitorados.
 Ele expõe endpoints REST protegidos por JWT para autenticação, gerenciamento de usuários e consulta de métricas, atuando como núcleo de controle e agregação do sistema.
 ___
+## Índice
+
+* [Função](#função)
+* [Estrutura (alto nível)](#estrutura-alto-nível)
+* [Requisitos](#requisitos)
+* [Configuração de chaves (JWT + registro do agente)](#configuração-de-chaves-jwt--registro-do-agente)
+
+  * [Como o servidor usa essas chaves](#como-o-servidor-usa-essas-chaves)
+* [Executando o servidor](#executando-o-servidor)
+* [Autenticação (como está no código)](#autenticação-como-está-no-código)
+
+  * [Tokens emitidos](#tokens-emitidos)
+
+    * [Token do usuário (login)](#token-do-usuário-login)
+    * [Token do agente (cliente)](#token-do-agente-cliente)
+* [Persistência (H2 / JPA)](#persistência-h2--jpa)
+* [Endpoints implementados](#endpoints-implementados)
+
+  * [1) Endpoints do Agente (Cliente → Servidor)](#1-endpoints-do-agente-cliente--servidor)
+
+    * `POST /api/systems/sysinfo`
+    * `POST /api/systems/sysinfovolatile`
+    * `GET /api/systems/updateAuth`
+  * [2) Endpoints do Frontend (Frontend → Servidor)](#2-endpoints-do-frontend-frontend--servidor)
+
+    * `GET /api/metrics/systems`
+    * `GET /api/metrics/systemVolatileInfo`
+    * `POST /api/metrics/systemRegister`
+  * [3) Endpoints de Usuário (Frontend → Servidor)](#3-endpoints-de-usuário-frontend--servidor)
+
+    * `POST /api/user/login`
+      
+* [Tráfego JSON “fim a fim” (como o projeto implementa)](#tráfego-json-fim-a-fim-como-o-projeto-implementa)
+
+  * [Fluxo do Agente (cliente) → Host](#fluxo-do-agente-cliente--host)
+  * [Fluxo do Usuário (frontend) → Host](#fluxo-do-usuário-frontend--host)
+* [Frontend servido pelo servidor](#frontend-servido-pelo-servidor)
+* [Swagger / OpenAPI](#swagger--openapi)
+    * `POST /api/user/register`
+    * `GET /api/user/remove`
+* [Tráfego JSON “fim a fim” (como o projeto implementa)](#tráfego-json-fim-a-fim-como-o-projeto-implementa)
+
+  * [Fluxo do Agente (cliente) → Host](#fluxo-do-agente-cliente--host)
+  * [Fluxo do Usuário (frontend) → Host](#fluxo-do-usuário-frontend--host)
+* [Frontend servido pelo servidor](#frontend-servido-pelo-servidor)
+* [Swagger / OpenAPI](#swagger--openapi)
+
+___
 ## Função
 
 * recebe **cadastro/atualização** de informações do agente (cliente) via JSON
@@ -64,10 +112,13 @@ RegisterKey=<string>
 
 ### Como o servidor usa essas chaves
 
+> Existe um método`SystemSecurity.registerAuthKey()`que pede essas chaves via `stdin` e grava no arquivo, e ele **está ligado automaticamente** ao fluxo de inicialização .
+
 * `AuthKey` é usada para assinar/verificar JWT (HS256) — via `JwtConfig` + `SystemSecurity.getAuthKey()`.
 * `RegisterKey` é usada como “segredo” para permitir **registro**/provisionamento do agente (via header `RegisterToken` em endpoints específicos) — via `SystemSecurity.getRegisterKey()`.
 
-> Existe um método`SystemSecurity.registerAuthKey()`que pede essas chaves via `stdin` e grava no arquivo, e ele **está ligado automaticamente** ao fluxo de inicialização .
+> [!WARNING]
+> A `RegisterKey` definida no servidor deve ser idêntica à que for definida no cliente, caso contrário, o cliente não conseguirá fazer uma requisição para receber um JWT próprio. .
 
 ---
 
