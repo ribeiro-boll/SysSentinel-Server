@@ -110,7 +110,7 @@ RegisterKey=<string>
 * `RegisterKey` é usada como “segredo” para permitir **registro**/provisionamento do agente (via header `RegisterToken` em endpoints específicos) — via `SystemSecurity.getRegisterKey()`.
 
 > [!WARNING]
-> A `RegisterKey` definida no servidor deve ser idêntica à que for definida no cliente, caso contrário, o cliente não conseguirá fazer uma requisição para receber um JWT próprio. .
+> A `RegisterKey` definida no Servidor deve ser idêntica à que for definida no Cliente, caso contrário, o cliente não conseguirá fazer uma requisição para receber um JWT próprio. .
 
 ---
 
