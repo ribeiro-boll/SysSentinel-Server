@@ -4,7 +4,7 @@ target/
 !**/src/main/**/target/
 !**/src/test/**/target/
 src/main/java/com/bolota/syssentinel/Security/authKey.config
-
+SysSentinelConfigs/
 ### STS ###
 .apt_generated
 .classpath

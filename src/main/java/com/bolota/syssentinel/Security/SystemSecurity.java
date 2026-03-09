@@ -16,7 +16,7 @@ import java.util.Scanner;
 
 public class SystemSecurity {
 
-    private static final String filePath = "src/main/java/com/bolota/syssentinel/Security/authKey.config";
+    private static final String filePath = "SysSentinelConfigs/Security/authKey.config";
 
     public static boolean isAuthFilePresent(){
         File file = new File(filePath);
@@ -26,6 +26,8 @@ public class SystemSecurity {
     public static void registerAuthKey() throws IOException {
         try (Scanner scanner = new Scanner(System.in)) {
             File file = new File(filePath);
+            File file1 = new File("SysSentinelConfigs/Security");
+            file1.mkdirs();
             String jwtToken;
             String registerKey;
             System.out.println("Digite a key do JWT !(NÂO USE ESPAÇOS E NÃO DIVULGUE A KEY)! :");

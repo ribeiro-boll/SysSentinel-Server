@@ -146,7 +146,6 @@ public class HostToClientController {
             for (int i = 0; i < 15;i++){
                 s.append(UUID_CHARS[(int)((Math.random() * 100) % UUID_CHARS.length)]);
             }
-            System.out.println(s);
         }while (ser.existsByUUID(s.toString()));
         return s.toString();
     }
