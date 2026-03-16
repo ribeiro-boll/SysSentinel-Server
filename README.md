@@ -11,39 +11,31 @@ ___
 * [Estrutura (alto nível)](#estrutura-alto-nível)
 * [Requisitos](#requisitos)
 * [Configuração de chaves (JWT + registro do agente)](#configuração-de-chaves-jwt--registro-do-agente)
-
   * [Como o servidor usa essas chaves](#como-o-servidor-usa-essas-chaves)
 * [Executando o servidor](#executando-o-servidor)
 * [Autenticação (como está no código)](#autenticação-como-está-no-código)
-
   * [Tokens emitidos](#tokens-emitidos)
-
     * [Token do usuário (login)](#token-do-usuário-login)
     * [Token do agente (cliente)](#token-do-agente-cliente)
 * [Persistência (H2 / JPA)](#persistência-h2--jpa)
 * [Endpoints implementados](#endpoints-implementados)
-
   * [1) Endpoints do Agente (Cliente → Servidor)](#1-endpoints-do-agente-cliente--servidor)
-
     * `POST /api/systems/sysinfo`
     * `POST /api/systems/sysinfovolatile`
     * `GET /api/systems/updateAuth`
   * [2) Endpoints do Frontend (Frontend → Servidor)](#2-endpoints-do-frontend-frontend--servidor)
-
     * `GET /api/metrics/systems`
     * `GET /api/metrics/systemVolatileInfo`
     * `POST /api/metrics/systemRegister`
   * [3) Endpoints de Usuário (Frontend → Servidor)](#3-endpoints-de-usuário-frontend--servidor)
     * `POST /api/user/login`
     * `POST /api/user/register`
-
 * [Tráfego JSON “fim a fim” (como o projeto implementa)](#tráfego-json-fim-a-fim-como-o-projeto-implementa)
-
   * [Fluxo do Agente (cliente) → Host](#fluxo-do-agente-cliente--host)
   * [Fluxo do Usuário (frontend) → Host](#fluxo-do-usuário-frontend--host)
-
 * [Frontend servido pelo servidor](#frontend-servido-pelo-servidor)
 * [Swagger / OpenAPI](#swagger--openapi)
+
 ___
 ## Função
 
